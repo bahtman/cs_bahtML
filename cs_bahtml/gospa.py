@@ -16,7 +16,7 @@ def check_gospa_parameters(c, p, alpha):
     if p < 1:
         raise ValueError("The order p is outside the range [1, inf)")
 
-def calculate_gospa(targets, tracks, c, p, alpha=2):
+def calculate_gospa(targets, tracks, c, p, alpha=2, pairwise_computed=None):
     """ GOSPA metric for multitarget tracking filters.
     
     The algorithm is of course symmetric and can be used for any pair of
@@ -79,7 +79,7 @@ def calculate_gospa(targets, tracks, c, p, alpha=2):
         gospa_missed = miss_cost*num_targets
         return gospa_missed**(1/p), dict(), 0, gospa_missed, 0
     else: # There are elements in both sets. Compute cost matrix
-        cost_matrix = euclidean_distances(targets,tracks)**1
+        cost_matrix = euclidean_distances(targets,tracks)**p
         cost_matrix = np.minimum(cost_matrix, miss_cost*alpha)
         target_assignment, track_assignment = linear_sum_assignment(cost_matrix)
         gospa_localization = 0

@@ -83,6 +83,14 @@ def add_smoke_wall(fig,smokes, mapname):
         fig = add_smoke(fig,x, y, smoke_rad)
     return fig
 
+def add_players(fig, players, mapname):
+    player_rad = position_transform(mapname, 60, "x") - position_transform(mapname, 0, "x")
+    for x,y,z in players:
+        x = position_transform(mapname, x, 'x')
+        y = position_transform(mapname, y, 'y')
+        fig = add_player(fig,x, y, player_rad, side = 'T')
+    return fig
+
 def add_smoke(fig, x, y, smoke_rad):
     draw = ImageDraw.Draw(fig)
     draw.ellipse(
@@ -94,13 +102,13 @@ def add_smoke(fig, x, y, smoke_rad):
     return fig
 
 def add_player(fig,x,y, player_rad, side):
+    draw = ImageDraw.Draw(fig)
     linecol = 'rgb(12,15,18)'
     if side == "CT":
         fillcol = 'rgb(93,121,174)'
     elif side == "T":
         fillcol = 'rgb(204,186,124)'
-
-    fig.ellipse(
+    draw.ellipse(
         xy= [(x-player_rad,y-player_rad), (x+player_rad,y+player_rad)],
                 outline=linecol,
                 fill= fillcol
