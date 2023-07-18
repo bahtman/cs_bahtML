@@ -1,7 +1,10 @@
 from __future__ import division
 import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
+from scipy.spatial.distance import euclidean
 from scipy.optimize import linear_sum_assignment
+from awpy.analytics.nav import point_distance
+
 
 def check_gospa_parameters(c, p, alpha):
     """ Check parameter bounds.
@@ -16,7 +19,7 @@ def check_gospa_parameters(c, p, alpha):
     if p < 1:
         raise ValueError("The order p is outside the range [1, inf)")
 
-def calculate_gospa(targets, tracks, c, p, alpha=2, pairwise_computed=None):
+def calculate_gospa(targets, tracks, c, p, alpha, map):
     """ GOSPA metric for multitarget tracking filters.
     
     The algorithm is of course symmetric and can be used for any pair of
@@ -79,7 +82,16 @@ def calculate_gospa(targets, tracks, c, p, alpha=2, pairwise_computed=None):
         gospa_missed = miss_cost*num_targets
         return gospa_missed**(1/p), dict(), 0, gospa_missed, 0
     else: # There are elements in both sets. Compute cost matrix
-        cost_matrix = euclidean_distances(targets,tracks)**p
+        cost_matrix = np.zeros((num_targets, num_tracks))
+        for n_target in range(num_targets):
+            for n_track in range(num_tracks):
+                current_cost = point_distance(map,
+                    targets[n_target], tracks[n_track],"geodesic")['distance']
+                if current_cost == 0:
+                    current_cost = euclidean(targets[n_target], tracks[n_track])
+
+                cost_matrix[n_target,n_track] = current_cost**p
+        #cost_matrix = euclidean_distances(targets,tracks)**p
         cost_matrix = np.minimum(cost_matrix, miss_cost*alpha)
         target_assignment, track_assignment = linear_sum_assignment(cost_matrix)
         gospa_localization = 0
@@ -100,14 +112,26 @@ def calculate_gospa(targets, tracks, c, p, alpha=2, pairwise_computed=None):
                 gospa_missed,
                 gospa_false)
     
-def calculate_gospa_matrix(series, c, p, alpha=2):
+def calculate_gospa_matrix(series, c, p, alpha, map):
     n = len(series)
     matrix = np.zeros((n, n))
     for i in range(n):
         for j in range(i,n):
             if i==j:
                 continue
-            dist = calculate_gospa(series[i],series[j],c,p,alpha)[0]
+            dist = calculate_gospa(series[i],series[j],c,p,alpha, map)[0]
             matrix[i,j] = dist
             matrix[j,i] = dist
     return matrix
+
+def calculate_gospa_distance(frames, c, p, alpha, map):
+    n = len(frames)
+    dist=0
+    for i in range(n):
+        for j in range(i,n):
+            if i==j:
+                continue
+            dist += calculate_gospa(frames[i],frames[j], c, p, alpha, map)[0]
+    dist = dist/(n*(n-1)/2)
+    
+    return dist
