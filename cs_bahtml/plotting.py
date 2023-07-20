@@ -74,43 +74,67 @@ def generate_contour(fig,dff,mapname,type="contour"):
 
 
     return fig
-
-def add_smoke_wall(fig,smokes, mapname):
-    smoke_rad = position_transform(mapname, 144, "x") - position_transform(mapname, 0, "x")
-    for x,y in smokes:
+util_rad = {
+    'Molotov':100,
+    'Smoke Grenade':144
+}
+def add_smoke_wall(fig,smokes, mapname, type):
+    
+    rad = position_transform(mapname, util_rad[type], "x") - position_transform(mapname, 0, "x")
+    for x,y,z in smokes:
         x = position_transform(mapname, x, 'x')
         y = position_transform(mapname, y, 'y')
-        fig = add_smoke(fig,x, y, smoke_rad)
+        fig = add_smoke(fig,x, y, rad, type)
     return fig
 
-def add_players(fig, players, mapname):
+def add_players(fig, players, mapname,type):
     player_rad = position_transform(mapname, 60, "x") - position_transform(mapname, 0, "x")
     for x,y,z in players:
         x = position_transform(mapname, x, 'x')
         y = position_transform(mapname, y, 'y')
-        fig = add_player(fig,x, y, player_rad, side = 'T')
+        fig = add_player(fig,x, y, player_rad, type = type)
     return fig
 
-def add_smoke(fig, x, y, smoke_rad):
+util_color = {
+    'Molotov':'rgb(255,119,0)',
+    'Smoke Grenade':'rgb(128,128,128)'
+}
+
+def add_smoke(fig, x, y, smoke_rad, type):
     draw = ImageDraw.Draw(fig)
     draw.ellipse(
         xy= [(x-smoke_rad,y-smoke_rad), (x+smoke_rad,y+smoke_rad)],
                 outline='rgb(12,15,18)',
-                fill= 'rgb(128,128,128)'
+                fill= util_color[type]
     )
 
     return fig
-
-def add_player(fig,x,y, player_rad, side):
+player_color = {
+    'ct':'rgb(93,121,174)',
+    't':'rgb(204,186,124)',
+    'thrower':'rgba(0,128,0,50)',
+}
+def add_player(fig,x,y, player_rad, type):
     draw = ImageDraw.Draw(fig)
     linecol = 'rgb(12,15,18)'
-    if side == "CT":
-        fillcol = 'rgb(93,121,174)'
-    elif side == "T":
-        fillcol = 'rgb(204,186,124)'
-    draw.ellipse(
-        xy= [(x-player_rad,y-player_rad), (x+player_rad,y+player_rad)],
-                outline=linecol,
-                fill= fillcol
-    )
+    
+    if type.startswith("dead"):
+        side = type.split("_")[-1]
+        width = int(player_rad/10)
+        draw.line(
+            xy= [(x-player_rad,y-player_rad), (x+player_rad,y+player_rad)],
+            width = width,
+            fill= player_color[side]
+        )
+        draw.line(
+            xy= [(x-player_rad,y+player_rad), (x+player_rad,y-player_rad)],
+            width = width,
+            fill= player_color[side]
+        )
+    else:
+        draw.ellipse(
+            xy= [(x-player_rad,y-player_rad), (x+player_rad,y+player_rad)],
+                    outline=linecol,
+                    fill= player_color[type]
+        )
     return fig

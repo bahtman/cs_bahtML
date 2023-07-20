@@ -19,7 +19,7 @@ def check_gospa_parameters(c, p, alpha):
     if p < 1:
         raise ValueError("The order p is outside the range [1, inf)")
 
-def calculate_gospa(targets, tracks, c, p, alpha, map):
+def calculate_gospa(targets, tracks, c, p, alpha, map, euclidean_dist=False):
     """ GOSPA metric for multitarget tracking filters.
     
     The algorithm is of course symmetric and can be used for any pair of
@@ -82,15 +82,18 @@ def calculate_gospa(targets, tracks, c, p, alpha, map):
         gospa_missed = miss_cost*num_targets
         return gospa_missed**(1/p), dict(), 0, gospa_missed, 0
     else: # There are elements in both sets. Compute cost matrix
-        cost_matrix = np.zeros((num_targets, num_tracks))
-        for n_target in range(num_targets):
-            for n_track in range(num_tracks):
-                current_cost = point_distance(map,
-                    targets[n_target], tracks[n_track],"geodesic")['distance']
-                if current_cost == 0:
-                    current_cost = euclidean(targets[n_target], tracks[n_track])
+        if euclidean_dist:
+            cost_matrix = euclidean_distances(targets, tracks)**p
+        else:
+            cost_matrix = np.zeros((num_targets, num_tracks))
+            for n_target in range(num_targets):
+                for n_track in range(num_tracks):
+                    current_cost = point_distance(map,
+                        targets[n_target], tracks[n_track],"geodesic")['distance']
+                    if current_cost == 0:
+                        current_cost = euclidean(targets[n_target], tracks[n_track])
 
-                cost_matrix[n_target,n_track] = current_cost**p
+                    cost_matrix[n_target,n_track] = current_cost**p
         #cost_matrix = euclidean_distances(targets,tracks)**p
         cost_matrix = np.minimum(cost_matrix, miss_cost*alpha)
         target_assignment, track_assignment = linear_sum_assignment(cost_matrix)
@@ -105,7 +108,7 @@ def calculate_gospa(targets, tracks, c, p, alpha, map):
         num_false = num_tracks - num_assignments
         gospa_missed = miss_cost*num_missed
         gospa_false = miss_cost*num_false
-        gospa = (gospa_localization + gospa_missed + gospa_false)**(1/p)
+        gospa = (gospa_localization + gospa_missed + gospa_false)**(1/p) / max(num_targets,num_tracks)
         return (gospa,
                 target_to_track_assigments,
                 gospa_localization,
@@ -133,5 +136,6 @@ def calculate_gospa_distance(frames, c, p, alpha, map):
                 continue
             dist += calculate_gospa(frames[i],frames[j], c, p, alpha, map)[0]
     dist = dist/(n*(n-1)/2)
+    print(dist)
     
     return dist
