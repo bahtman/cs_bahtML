@@ -19,7 +19,7 @@ def check_gospa_parameters(c, p, alpha):
     if p < 1:
         raise ValueError("The order p is outside the range [1, inf)")
 
-def calculate_gospa(targets, tracks, c, p, alpha, map, euclidean_dist=False):
+def calculate_gospa(targets, tracks, c, p, alpha, map, euclidean_dist):
     """ GOSPA metric for multitarget tracking filters.
     
     The algorithm is of course symmetric and can be used for any pair of
@@ -115,26 +115,26 @@ def calculate_gospa(targets, tracks, c, p, alpha, map, euclidean_dist=False):
                 gospa_missed,
                 gospa_false)
     
-def calculate_gospa_matrix(series, c, p, alpha, map):
+def calculate_gospa_matrix(series, c, p, alpha, map, euclidean_dist = False):
     n = len(series)
     matrix = np.zeros((n, n))
     for i in range(n):
         for j in range(i,n):
             if i==j:
                 continue
-            dist = calculate_gospa(series[i],series[j],c,p,alpha, map)[0]
+            dist = calculate_gospa(series[i],series[j],c,p,alpha, map, euclidean_dist)[0]
             matrix[i,j] = dist
             matrix[j,i] = dist
     return matrix
 
-def calculate_gospa_distance(frames, c, p, alpha, map):
+def calculate_gospa_distance(frames, c, p, alpha, map, euclidean_dist):
     n = len(frames)
     dist=0
     for i in range(n):
         for j in range(i,n):
             if i==j:
                 continue
-            dist += calculate_gospa(frames[i],frames[j], c, p, alpha, map)[0]
+            dist += calculate_gospa(frames[i],frames[j], c, p, alpha, map, euclidean_dist = False)[0]
     dist = dist/(n*(n-1)/2)
     print(dist)
     
