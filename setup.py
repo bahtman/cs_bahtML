@@ -42,8 +42,15 @@ setup(
     include_package_data=True,
     keywords='cs_bahtml',
     name='cs_bahtml',
-    packages=find_packages(include=['cs_bahtml', 'cs_bahtml.*']),
-    package_data={'cs_bahtml': ['cs_bahtml/radars/*']}
+    packages=find_packages(),
+    package_data={
+        # If any package contains *.txt or *.rst files, include them:
+        "": [
+            "radars/*.png",
+            "radars/*.json",
+            "sprites/*.png
+        ]
+    },
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/bahtman/cs_bahtml',
