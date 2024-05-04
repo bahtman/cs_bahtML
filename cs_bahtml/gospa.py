@@ -129,6 +129,9 @@ def calculate_gospa_matrix(series, c, p, alpha, map, euclidean_dist = False):
 
 def calculate_gospa_distance(frames, c, p, alpha, map, euclidean_dist):
     n = len(frames)
+    if n <2:
+        raise ValueError("There must be at least two frames to calculate GOSPA distance")
+    frames = frames.values
     dist=0
     for i in range(n):
         for j in range(i,n):
