@@ -43,6 +43,7 @@ setup(
     keywords='cs_bahtml',
     name='cs_bahtml',
     packages=find_packages(include=['cs_bahtml', 'cs_bahtml.*']),
+    package_data={'cs_bahtml': ['cs_bahtml/radars/*']}
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/bahtman/cs_bahtml',
