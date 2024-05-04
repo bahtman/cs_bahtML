@@ -1,4 +1,8 @@
 from awpy.data import MAP_DATA
+from typing import Tuple
+
+
+
 def position_to_csgo(mapname, position):
     """Transforms a position from map to csgo
 

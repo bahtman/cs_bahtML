@@ -13,7 +13,7 @@ with open('HISTORY.rst') as history_file:
 requirements = [ 
     "geopandas",
     "pandas",
-    "awpy",
+#    "awpy",
     "plotly",
     "Pillow",
     "scikit-learn"

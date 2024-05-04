@@ -1,9 +1,9 @@
-from awpy.data import NAV, MAP_DATA
+#from awpy.data import NAV, MAP_DATA
 import plotly.graph_objects as go
 import plotly.express as px
-from PIL import Image, ImageDraw
+from PIL import ImageDraw
 import os
-from awpy.visualization.plot import position_transform
+from cs_bahtml.radars import MAP_DATA
 
 def fill_area(fig,mapname=None,areaId=None):
     if areaId:
@@ -18,15 +18,18 @@ def fill_area(fig,mapname=None,areaId=None):
         )
     return fig
 
-def load_map(path, mapname):
-    img = Image.open(os.path.join(path,f"{mapname}_dark.png"))
-    #for a in NAV[mapname]:
-    #    area = NAV[mapname][a]
-    #    row,col = draw.rectangle_perimeter(end=(area["southEastY"],area["southEastX"]), start=(area["northWestY"],area["northWestX"]))
-    #    img[row, col, :] = [255, 255, 0,200] #RGB -Black
-    return img
 
 
+def position_transform(mapname, position, axis):
+    start_x = MAP_DATA[mapname]["pos_x"]
+    start_y = MAP_DATA[mapname]["pos_y"]
+    scale = MAP_DATA[mapname]["scale"]
+    if axis == "x":
+        return (position - start_x) / scale
+    elif axis == "y":
+        return (start_y- position) / scale
+    else:
+        raise ValueError("Axis must be x or y")
 
 
 
@@ -75,8 +78,8 @@ def generate_contour(fig,dff,mapname,type="contour"):
 
     return fig
 util_rad = {
-    'Molotov':100,
-    'Smoke Grenade':144
+    'molotov':100,
+    'smoke':144
 }
 def add_smoke_wall(fig,smokes, mapname, type):
     
@@ -96,8 +99,8 @@ def add_players(fig, players, mapname,type):
     return fig
 
 util_color = {
-    'Molotov':'rgb(255,119,0)',
-    'Smoke Grenade':'rgb(128,128,128)'
+    'molotov':'rgb(255,119,0)',
+    'smoke':'rgb(128,128,128)'
 }
 
 def add_smoke(fig, x, y, smoke_rad, type):
@@ -110,8 +113,8 @@ def add_smoke(fig, x, y, smoke_rad, type):
 
     return fig
 player_color = {
-    'ct':'rgb(93,121,174)',
-    't':'rgb(204,186,124)',
+    'CT':'rgb(93,121,174)',
+    'TERRORIST':'rgb(204,186,124)',
     'thrower':'rgba(0,128,0,50)',
 }
 def add_player(fig,x,y, player_rad, type):

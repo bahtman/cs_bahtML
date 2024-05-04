@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.metrics.pairwise import euclidean_distances
 from scipy.spatial.distance import euclidean
 from scipy.optimize import linear_sum_assignment
-from awpy.analytics.nav import point_distance
+#from awpy.analytics.nav import point_distance
 
 
 def check_gospa_parameters(c, p, alpha):
@@ -88,10 +88,10 @@ def calculate_gospa(targets, tracks, c, p, alpha, map, euclidean_dist):
             cost_matrix = np.zeros((num_targets, num_tracks))
             for n_target in range(num_targets):
                 for n_track in range(num_tracks):
-                    current_cost = point_distance(map,
-                        targets[n_target], tracks[n_track],"geodesic")['distance']
-                    if current_cost == 0:
-                        current_cost = euclidean(targets[n_target], tracks[n_track])
+                    # current_cost = point_distance(map,
+                    #     targets[n_target], tracks[n_track],"geodesic")['distance']
+                    # if current_cost == 0:
+                    current_cost = euclidean(targets[n_target], tracks[n_track])
 
                     cost_matrix[n_target,n_track] = current_cost**p
         #cost_matrix = euclidean_distances(targets,tracks)**p
@@ -134,8 +134,7 @@ def calculate_gospa_distance(frames, c, p, alpha, map, euclidean_dist):
         for j in range(i,n):
             if i==j:
                 continue
-            dist += calculate_gospa(frames[i],frames[j], c, p, alpha, map, euclidean_dist = False)[0]
+            dist += calculate_gospa(frames[i],frames[j], c, p, alpha, map, euclidean_dist = euclidean_dist)[0]
     dist = dist/(n*(n-1)/2)
-    print(dist)
     
     return dist
