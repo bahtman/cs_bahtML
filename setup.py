@@ -48,7 +48,7 @@ setup(
         "": [
             "radars/*.png",
             "radars/*.json",
-            "sprites/*.png
+            "sprites/*.png"
         ]
     },
     test_suite='tests',
